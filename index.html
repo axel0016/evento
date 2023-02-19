@@ -141,14 +141,30 @@
 
           // run the webcam image through the image model
           async function predict() {
-            // predict can take in an image, video or canvas html element
-            const prediction = await model.predict(webcam.canvas);
-            for (let i = 0; i < maxPredictions; i++) {
-              const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-              labelContainer.childNodes[i].innerHTML = classPrediction;
+              const prediction = await model.predict(webcam.canvas);
+              let highestProbIndex = 0;
+              for (let i = 1; i < maxPredictions; i++) {
+                if (prediction[i].probability > prediction[highestProbIndex].probability) {
+                  highestProbIndex = i;
+                }
+              }
+
+              let className;
+              if (prediction[highestProbIndex].className === "Class 2") {
+                className = "down";
+              } else if (prediction[highestProbIndex].className === "Class 1") {
+                className = "up";
+              } else if (prediction[highestProbIndex].className === "Class 3") {
+                className = "fist";
+              } else if (prediction[highestProbIndex].className === "Class 4") {
+                className = "two";
+              }
+
+              const highestProb = prediction[highestProbIndex].probability.toFixed(2);
+              const classPrediction = className + ": " + highestProb;
+              labelContainer.innerHTML = classPrediction;
             }
-          }
+
         </script>
         
         <div id="preloader"></div>
